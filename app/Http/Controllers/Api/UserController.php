@@ -65,7 +65,8 @@ class UserController extends Controller
                 if($user[0]->mac_address == $request->mac_address && $user[0]->hard_disk_serial == $request->hard_disk_serial){
                     $response = array(
                         'message' => __("Login Successful."),
-                        'user' => $user->toArray()
+                        'user' => $user->toArray(),
+                        'verified' => $user[0]->hasVerifiedEmail(),
                     );
                 }
                 else{
