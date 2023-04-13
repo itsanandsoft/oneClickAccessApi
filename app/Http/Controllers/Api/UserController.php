@@ -56,29 +56,34 @@ class UserController extends Controller
             $this->verifyRequiredParams(array('email','password','mac_address','hard_disk_serial'), $request);
             
             $user = User::where('email',$request->email)
-            // ->where('mac_address',$request->mac_address)
-            // ->where('hard_disk_serial',$request->hard_disk_serial)
             ->get();
             
             if(count($user) > 0){
-                //echo "<pre>";print_r($user[0]->mac_address);exit;
-                if($user[0]->hasVerifiedEmail()){
-                    if($user[0]->mac_address == $request->mac_address && $user[0]->hard_disk_serial == $request->hard_disk_serial){
-                        $response = array(
-                            'message' => __("Login Successful."),
-                            'user' => $user->toArray(),
-                            'verified' => $user[0]->hasVerifiedEmail(),
-                        );
+                if (Hash::check($request->password, $user[0]->password)) {                
+                    //echo "<pre>";print_r($user[0]->mac_address);exit;
+                    if($user[0]->hasVerifiedEmail()){
+                        if($user[0]->mac_address == $request->mac_address && $user[0]->hard_disk_serial == $request->hard_disk_serial){
+                            $response = array(
+                                'message' => __("Login Successful."),
+                                'user' => $user->toArray(),
+                                'verified' => $user[0]->hasVerifiedEmail(),
+                            );
+                        }
+                        else{
+                            $response = array(
+                                'message' => __("Login failed. Limit exceed or invalid machine"),
+                            );
+                        }
                     }
                     else{
                         $response = array(
-                            'message' => __("Login failed. Limit exceed or invalid machine"),
+                            'message' => __("Account not approved"),
                         );
                     }
                 }
                 else{
                     $response = array(
-                        'message' => __("Account not approved"),
+                        'message' => __("Incorrect Password"),
                     );
                 }
                 
@@ -143,9 +148,9 @@ class UserController extends Controller
         try{
             try{
                 $this->validate($request, [
-                    'email' => 'required|email:rfc,dns',
+                    'email' => 'required|email',
                     'code' => 'required',
-                    'password' => 'required|string|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/|regex:/[@$!%*#?&]/',
+                    'password' => 'required|string|min:6',
                 ]);
             } catch (\Exception $ex) {
                 $validator = $ex->validator;
@@ -171,6 +176,7 @@ class UserController extends Controller
             }
             
             $user->password = Hash::make($request->input("password"));
+            $user->verification_code = '';
             $user->save();
             
             $response = array(

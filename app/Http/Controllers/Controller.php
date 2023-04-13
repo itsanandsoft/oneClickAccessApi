@@ -43,6 +43,12 @@ class Controller extends BaseController
             'errorTrace' => $ex->getTraceAsString()
         ));
     }
+    public function sendValidatorResponse($validator,$code){
+        $this->json->setCode($code);
+        $this->json->sendResponse(array(
+            'message' => $validator,
+        ));
+    }
     public function verifyRequiredParams($required_fields, Request $request = null) {
         $error = false;
         $error_fields = "";
@@ -74,8 +80,7 @@ class Controller extends BaseController
             ));            
         }
     }
-    public function getParams()
-    {
+    public function getParams(){
         $return       = array();
         $paramSources = array('_GET', '_POST');
         if (in_array('_GET', $paramSources)
