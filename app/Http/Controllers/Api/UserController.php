@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\User;
+use App\Models\Machine;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use App\Mail\PasswordReset;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -18,8 +20,8 @@ class UserController extends Controller
         return Validator::make($data, [
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6'],
-            'mac_address' => ['required', 'string','unique:users'],
-            'hard_disk_serial' => ['required', 'string'],
+            'mac_address' => ['required'],
+            'hard_disk_serial' => ['required'],
         ]);
     }
     public function signup(Request $request){
@@ -30,7 +32,7 @@ class UserController extends Controller
                 $messages = $validator->errors()->getMessages();
                 $this->json->setCode(400);
                 $this->json->sendResponse(array(
-                    'message' => __("Validation failed."),
+                    'message' => "Validation failed.",
                     'errors' => $messages,
                 ));
             }
@@ -41,7 +43,7 @@ class UserController extends Controller
             DB::commit();
             
             $response = array(
-                'message' => __("Your Account has been created."),
+                'message' => "Your Account has been created.",
                 'user' => $user->toArray()
             );
             
@@ -56,22 +58,35 @@ class UserController extends Controller
             $this->verifyRequiredParams(array('email','password','mac_address','hard_disk_serial'), $request);
             
             $user = User::where('email',$request->email)
-            ->get();
-            
-            if(count($user) > 0){
-                if (Hash::check($request->password, $user[0]->password)) {                
-                    //echo "<pre>";print_r($user[0]->mac_address);exit;
-                    if($user[0]->hasVerifiedEmail()){
-                        if($user[0]->mac_address == $request->mac_address && $user[0]->hard_disk_serial == $request->hard_disk_serial){
-                            $response = array(
-                                'message' => __("Login Successful."),
-                                'user' => $user->toArray(),
-                                'verified' => $user[0]->hasVerifiedEmail(),
-                            );
+            ->where('is_admin','<>','1')
+            ->first();
+
+            if(!empty($user)){
+                if (Hash::check($request->password, $user->password)) {                
+                    $user->tokens()->delete();
+                    if($user->hasVerifiedEmail()){
+                        if(!empty($user->machines)){
+                            $machine = $user->machines
+                            ->where('mac_address',$request->mac_address)
+                            ->where('hard_disk_serial',$request->hard_disk_serial)
+                            ->first();
+                            if(!empty($machine)){
+                                $response = array(
+                                    'message' => __("Login Successful."),
+                                    'user' => $user->toArray(),
+                                    'verified' => $user->hasVerifiedEmail(),
+                                    'token' => $user->createToken('user_token')->plainTextToken,
+                                );
+                            }
+                            else{
+                                $response = array(
+                                    'message' => __("Login failed. Machine not found"),
+                                );
+                            }
                         }
                         else{
                             $response = array(
-                                'message' => __("Login failed. Limit exceed or invalid machine"),
+                                'message' => __("Login failed. No machine registered"),
                             );
                         }
                     }
@@ -86,7 +101,6 @@ class UserController extends Controller
                         'message' => __("Incorrect Password"),
                     );
                 }
-                
             }
             else{
                 $response = array(
@@ -192,45 +206,60 @@ class UserController extends Controller
     }
     protected function createUser(Request $request){
         $data = $request->all();
+
+        $machine = Machine::where('mac_address',$data['mac_address'])
+        ->where('hard_disk_serial',$data['hard_disk_serial'])
+        ->first();
+        if(!empty($machine)){
+            $response = array(
+                'message' => "Validation failed.",
+                'errors' => [
+                    'mac_address' => [
+                        "Mac Address already assigned."
+                    ]
+                ],
+            );
+            $this->json->setCode(400);
+            $this->json->sendResponse($response);
+            return;
+        }
       
         $user = User::create([
             'name' => '',
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'is_admin' => 0,
+        ]);
+        $machine = Machine::create([
+            'user_id' => $user->id,
             'mac_address' => $data['mac_address'],
             'hard_disk_serial' => $data['hard_disk_serial'],
+            'machine' => isset($data['user_agent'])?$data['user_agent']:'windows',
         ]);
 
         return $user;
     }
-    public function verifyUser(Request $request){
-        $this->verifyRequiredParams(array('id'), $request);
-        DB::beginTransaction();
-        try{
-            $user = User::where("id", $request->input("id"))->first();
-            if(empty($user)){
-                $this->json->setCode(400);
+    public function getAllMachines(Request $request){
+
+        $user = Auth::user();
+        if(empty($user[0])){
+            if(!empty($user->machines)){
+                $machines = $user->machines;
+                $this->json->setCode(200);
                 $this->json->sendResponse(array(
-                    'message' => array(
-                        'email' => "Invalid User."
-                    ),
+                    'machines' => $machines,
                 ));
             }
-            
-            $current_date_time = Carbon::now()->toDateTimeString();
-            
-            $user->email_verified_at = $current_date_time;
-            $user->save();
-            
-            $response = array(
-                'message' => __("Verification Complete"),
-            );
-            
-            DB::commit();
-            $this->json->sendResponse($response);
-        } catch (\Exception $ex) {
-            DB::rollBack();
-            $this->sendException($ex);
+            else{
+                $this->json->setCode(404);
+                $this->json->sendResponse(array(
+                    'body' => 'not found',
+                ));
+            } 
         }
+        $this->json->setCode(404);
+        $this->json->sendResponse(array(
+            'body' => 'not found',
+        ));
     }
 }

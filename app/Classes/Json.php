@@ -33,7 +33,7 @@ class Json {
             'body' => $this->body
         );
         echo json_encode($response);
-        $this->logData($response);
+        //$this->logData($response);
         exit;
         
     }
