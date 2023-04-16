@@ -71,16 +71,23 @@ class UserController extends Controller
                             ->where('hard_disk_serial',$request->hard_disk_serial)
                             ->first();
                             if(!empty($machine)){
-                                $response = array(
-                                    'message' => __("Login Successful."),
-                                    'user' => $user->toArray(),
-                                    'verified' => $user->hasVerifiedEmail(),
-                                    'token' => $user->createToken('user_token')->plainTextToken,
-                                );
+                                if($machine->active == '0'){
+                                    $response = array(
+                                        'message' => "Login failed. Machine not active",
+                                    );    
+                                }
+                                else{
+                                    $response = array(
+                                        'message' => __("Login Successful."),
+                                        'user' => $user->toArray(),
+                                        'verified' => $user->hasVerifiedEmail(),
+                                        'token' => $user->createToken('user_token')->plainTextToken,
+                                    );
+                                }
                             }
                             else{
                                 $response = array(
-                                    'message' => __("Login failed. Machine not found"),
+                                    'message' => "Login failed. Machine not found",
                                 );
                             }
                         }
