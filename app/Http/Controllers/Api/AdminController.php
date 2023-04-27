@@ -24,6 +24,7 @@ class AdminController extends Controller
                 if (Hash::check($request->password, $user[0]->password)) {
                     $user[0]->tokens()->delete();
                     if(!empty($user[0]->is_admin)){
+                        $this->json->setCode(200);
                         $response = array(
                             'message' => __("Login Successful."),
                             'user' => $user->toArray(),
@@ -31,19 +32,26 @@ class AdminController extends Controller
                             'token' => $user[0]->createToken('admin_token')->plainTextToken,
                         );
                     }
+                    else{
+                        $this->json->setCode(400);
+                        $response = array(
+                            'message' => __("Login Faild. User not an admin")
+                        );
+                    }
                 }
                 else{
+                    $this->json->setCode(400);
                     $response = array(
                         'message' => __("Incorrect Password"),
                     );
                 }
             }
             else{
+                $this->json->setCode(400);
                 $response = array(
                     'message' => __("Login failed. User not found"),
                 );
             }
-            
             $this->json->sendResponse($response);
             
         } catch (Exception $ex) {
