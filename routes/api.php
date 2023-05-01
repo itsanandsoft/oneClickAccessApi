@@ -22,10 +22,10 @@ Route::post('auth/reset-password',[UserController::class,'reset'])->middleware('
 Route::post('admin/login',[AdminController::class,'login'])->middleware('guest');
 
 Route::group(['middleware' => 'auth:sanctum','prefix'=>'admin'], function () {
-    // Route::post('forgot-password',[AdminController::class,'forgot']);
-    // Route::post('reset-password',[AdminController::class,'reset']);
     Route::post('verify-user',[AdminController::class,'verifyUser']);
-    Route::post('get-all-users',[AdminController::class,'getAllUsers']);
+    Route::get('get-all-users',[AdminController::class,'getAllUsers']);
+    Route::get('get-all-files',[AdminController::class,'getUserFiles']);
+    Route::post('upload-file',[AdminController::class,'uploadFile']);
 });
 Route::group(['middleware' => 'auth:sanctum','prefix'=>'user'], function () {
     Route::get('get-all-machines',[UserController::class,'getAllMachines']);

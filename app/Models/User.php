@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Machine;
+use App\Models\File;
 
 class User extends Authenticatable
 {
@@ -49,5 +50,9 @@ class User extends Authenticatable
     public function machines()
     {
         return $this->hasMany(Machine::class);
+    }
+    public function files()
+    {
+        return $this->hasMany(File::class);
     }
 }

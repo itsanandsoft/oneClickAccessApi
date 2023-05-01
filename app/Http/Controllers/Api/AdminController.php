@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\User;
+use App\Models\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -92,6 +93,29 @@ class AdminController extends Controller
         $users = User::where('is_admin', '<>', '1')->get();
         $response = array(
             'data' => $users,
+        );
+        $this->json->sendResponse($response);
+    }
+    public function getUserFiles(Request $request){
+        $users = User::where('is_admin', '<>', '1')->get();
+        foreach($users as $user){
+            $user['files'] = $user->files;
+            $user['machines'] = $user->machines;
+        }
+        $response = array(
+            'data' => $users,
+        );
+        $this->json->sendResponse($response);
+    }
+    public function uploadFile(Request $request){
+        $user = User::where('id',$request->id)->first();
+        $file = new File;
+        $file->data = $request->json;
+        $user->files()->save($file);
+        $user['files'] = $user->files; 
+        $this->json->setCode(200);
+        $response = array(
+            'data' => $user,
         );
         $this->json->sendResponse($response);
     }

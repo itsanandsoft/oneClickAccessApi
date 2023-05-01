@@ -25,9 +25,15 @@ class Controller extends BaseController
         'invalid_password' => 400,
     );
     public function __construct() {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
-        header('Access-Control-Allow-Headers: *');
+        if (!in_array('Access-Control-Allow-Origin: *', headers_list())) {
+            header('Access-Control-Allow-Origin: *');
+        }
+        if (!in_array('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE', headers_list())) {
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
+        }
+        if (!in_array('Access-Control-Allow-Headers: *', headers_list())) {
+            header('Access-Control-Allow-Headers: *');
+        }
         date_default_timezone_set('UTC');
         $this->init();
     }
