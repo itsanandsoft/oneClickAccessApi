@@ -18,9 +18,9 @@ class AdminController extends Controller
     public function login(Request $request){
         try{
             $this->verifyRequiredParams(array('email','password'), $request);
-            
+
             $user = User::where('email',$request->email)->get();
-            
+
             if(count($user) > 0){
                 if (Hash::check($request->password, $user[0]->password)) {
                     $user[0]->tokens()->delete();
@@ -50,11 +50,11 @@ class AdminController extends Controller
             else{
                 $this->json->setCode(400);
                 $response = array(
-                    'message' => __("Login failed. User not found"),
+                    'message' => __("Login failed. User not found "),
                 );
             }
             $this->json->sendResponse($response);
-            
+
         } catch (Exception $ex) {
             $this->sendException($ex);
         }
@@ -72,16 +72,16 @@ class AdminController extends Controller
                     ),
                 ));
             }
-            
+
             $current_date_time = Carbon::now()->toDateTimeString();
-            
+
             $user->email_verified_at = $current_date_time;
             $user->save();
-            
+
             $response = array(
                 'message' => __("Verification Complete"),
             );
-            
+
             DB::commit();
             $this->json->sendResponse($response);
         } catch (\Exception $ex) {
@@ -112,7 +112,7 @@ class AdminController extends Controller
         $file = new File;
         $file->data = $request->json;
         $user->files()->save($file);
-        $user['files'] = $user->files; 
+        $user['files'] = $user->files;
         $this->json->setCode(200);
         $response = array(
             'data' => $user,

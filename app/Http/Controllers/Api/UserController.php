@@ -36,17 +36,32 @@ class UserController extends Controller
                     'errors' => $messages,
                 ));
             }
-            
-            $user = $this->createUser($request);
+
+            //$user = $this->createUser($request);
+            $user = new User();
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->password = Hash::make($request->input("password"));
+            $user->mac_address = $request->input('mac_address'); // Assigning the value
+            $user->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
+            $user->is_admin = '0';
+            $user->save();
+
+            $machine = new Machine();
+            $machine->user_id = $user->id;
+            $machine->mac_address = $request->input('mac_address'); // Assigning the value
+            $machine->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
+            $machine->save();
+
             //event(new Registered($user));
 
             DB::commit();
-            
+
             $response = array(
                 'message' => "Your Account has been created.",
                 'user' => $user->toArray()
             );
-            
+
             $this->json->sendResponse($response);
         } catch (Exception $ex) {
             DB::rollBack();
@@ -56,13 +71,13 @@ class UserController extends Controller
     public function login(Request $request){
         try{
             $this->verifyRequiredParams(array('email','password','mac_address','hard_disk_serial'), $request);
-            
+
             $user = User::where('email',$request->email)
             ->where('is_admin','<>','1')
             ->first();
 
             if(!empty($user)){
-                if (Hash::check($request->password, $user->password)) {                
+                if (Hash::check($request->password, $user->password)) {
                     $user->tokens()->delete();
                     if($user->hasVerifiedEmail()){
                         if(!empty($user->machines)){
@@ -74,7 +89,7 @@ class UserController extends Controller
                                 if($machine->active == '0'){
                                     $response = array(
                                         'message' => "Login failed. Machine not active",
-                                    );    
+                                    );
                                 }
                                 else{
                                     $response = array(
@@ -114,9 +129,9 @@ class UserController extends Controller
                     'message' => __("Login failed. User not found"),
                 );
             }
-            
+
             $this->json->sendResponse($response);
-            
+
         } catch (Exception $ex) {
             $this->sendException($ex);
         }
@@ -143,10 +158,10 @@ class UserController extends Controller
                     ),
                 ));
             }
-            
+
             $user->verification_code = rand(100000, 999999);
             $user->save();
-            
+
             try{
                 Mail::to($user->email)->send(
                     new PasswordReset($user)
@@ -195,15 +210,15 @@ class UserController extends Controller
                     ),
                 ));
             }
-            
+
             $user->password = Hash::make($request->input("password"));
             $user->verification_code = '';
             $user->save();
-            
+
             $response = array(
                 'message' => __("Your Password has been updated."),
             );
-            
+
             DB::commit();
             $this->json->sendResponse($response);
         } catch (\Exception $ex) {
@@ -230,7 +245,7 @@ class UserController extends Controller
             $this->json->sendResponse($response);
             return;
         }
-      
+
         $user = User::create([
             'name' => '',
             'email' => $data['email'],
@@ -262,7 +277,7 @@ class UserController extends Controller
                 $this->json->sendResponse(array(
                     'body' => 'not found',
                 ));
-            } 
+            }
         }
         $this->json->setCode(404);
         $this->json->sendResponse(array(
