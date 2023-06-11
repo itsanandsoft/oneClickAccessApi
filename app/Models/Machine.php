@@ -13,6 +13,7 @@ class Machine extends Model
         'user_id',
         'mac_address',
         'hard_disk_serial',
+        'active',
     ];
     public $timestamps = false;
 }

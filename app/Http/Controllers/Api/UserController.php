@@ -24,45 +24,93 @@ class UserController extends Controller
             'hard_disk_serial' => ['required'],
         ]);
     }
+    protected function signupValidatorMachine(array $data){
+        return Validator::make($data, [
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'min:6'],
+            'mac_address' => ['required'],
+            'hard_disk_serial' => ['required'],
+        ]);
+    }
     public function signup(Request $request){
         DB::beginTransaction();
         try{
-            $validator = $this->signupValidator($request->all());
-            if ($validator->fails()) {
-                $messages = $validator->errors()->getMessages();
-                $this->json->setCode(400);
-                $this->json->sendResponse(array(
-                    'message' => "Validation failed.",
-                    'errors' => $messages,
-                ));
+            $user = User::where('email',$request->email)
+            ->where('is_admin','<>','1')
+            ->first();
+            if(!empty($user)){
+                $validator = $this->signupValidatorMachine($request->all());
+                if ($validator->fails()) {
+                    $messages = $validator->errors()->getMessages();
+                    $this->json->setCode(400);
+                    $this->json->sendResponse(array(
+                        'message' => "Validation failed.",
+                        'errors' => $messages,
+                    ));
+                }
+
+                $machine = new Machine();
+                $machine->user_id = $user->id;
+                $machine->mac_address = $request->input('mac_address'); // Assigning the value
+                $machine->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
+                $machine->save();
+
+                //event(new Registered($user));
+
+                DB::commit();
+
+                $response = array(
+                    'message' => "Your Account Existed! New Machine has been created against Registered Account",
+                    'user' => $user->toArray()
+                );
+
+                $this->json->sendResponse($response);
+
+
             }
 
-            //$user = $this->createUser($request);
-            $user = new User();
-            $user->name = $request->input('name');
-            $user->email = $request->input('email');
-            $user->password = Hash::make($request->input("password"));
-            $user->mac_address = $request->input('mac_address'); // Assigning the value
-            $user->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
-            $user->is_admin = '0';
-            $user->save();
 
-            $machine = new Machine();
-            $machine->user_id = $user->id;
-            $machine->mac_address = $request->input('mac_address'); // Assigning the value
-            $machine->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
-            $machine->save();
+            else{
 
-            //event(new Registered($user));
+                $validator = $this->signupValidator($request->all());
+                if ($validator->fails()) {
 
-            DB::commit();
+                    $messages = $validator->errors()->getMessages();
+                    $this->json->setCode(400);
+                    $this->json->sendResponse(array(
+                        'message' => "Validation failed.",
+                        'errors' => $messages,
+                    ));
+                }
 
-            $response = array(
-                'message' => "Your Account has been created.",
-                'user' => $user->toArray()
-            );
 
-            $this->json->sendResponse($response);
+                //$user = $this->createUser($request);
+                $user = new User();
+                $user->name = $request->input('name');
+                $user->email = $request->input('email');
+                $user->password = Hash::make($request->input("password"));
+                $user->mac_address = $request->input('mac_address'); // Assigning the value
+                $user->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
+                $user->is_admin = '0';
+                $user->save();
+
+                $machine = new Machine();
+                $machine->user_id = $user->id;
+                $machine->mac_address = $request->input('mac_address'); // Assigning the value
+                $machine->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
+                $machine->save();
+
+                //event(new Registered($user));
+
+                DB::commit();
+
+                $response = array(
+                    'message' => "Your Account has been created.",
+                    'user' => $user->toArray()
+                );
+
+                $this->json->sendResponse($response);
+            }
         } catch (Exception $ex) {
             DB::rollBack();
             $this->sendException($ex);
