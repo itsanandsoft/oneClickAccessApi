@@ -49,24 +49,33 @@ class UserController extends Controller
                     ));
                 }
 
-                $machine = new Machine();
-                $machine->user_id = $user->id;
-                $machine->mac_address = $request->input('mac_address'); // Assigning the value
-                $machine->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
-                $machine->save();
+                    $machine = $user->machines
+                                ->where('mac_address',$request->mac_address)
+                                ->where('hard_disk_serial',$request->hard_disk_serial)
+                                ->first();
+                    if(!empty($machine)){
+                        $response = array(
+                            'message' => "Machine found with email! Try Login",
+                        );
+                    }
+                    else{
+                        $machine = new Machine();
+                        $machine->user_id = $user->id;
+                        $machine->mac_address = $request->input('mac_address'); // Assigning the value
+                        $machine->hard_disk_serial = $request->input('hard_disk_serial'); // Assigning the value
+                        $machine->save();
 
-                //event(new Registered($user));
 
-                DB::commit();
+                        DB::commit();
 
-                $response = array(
-                    'message' => "Your Account Existed! New Machine has been created against Registered Account",
-                    'user' => $user->toArray()
-                );
-
-                $this->json->sendResponse($response);
+                        $response = array(
+                            'message' => "Your Account Existed! New Machine has been created against Registered Account",
+                            'user' => $user->toArray()
+                        );
 
 
+                    }
+                    $this->json->sendResponse($response);
             }
 
 
