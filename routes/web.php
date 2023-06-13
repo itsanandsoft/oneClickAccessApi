@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,7 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    // return view('welcome');
-    return;
+// Route::get('/dashboard', function () {
+//     // return view('welcome');
+//     return;
+// });
+
+Route::as('admin.')->prefix('admin')->group(function () {
+
+    Route::get('/home', [DashboardController::class, 'home'])->name('home');
+    Route::get('/import', [DashboardController::class, 'import'])->name('import');
+
 });
