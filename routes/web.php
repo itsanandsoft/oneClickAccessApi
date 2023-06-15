@@ -24,5 +24,7 @@ Route::as('admin.')->prefix('admin')->group(function () {
     Route::get('/import', [DashboardController::class, 'import'])->name('import');
     Route::post('/get_machine_data', [DashboardController::class, 'get_machine_data'])->name('get_machine_data');
     Route::post('/verify_user', [DashboardController::class, 'verify_user'])->name('verify_user');
+    Route::post('/verify_machine', [DashboardController::class, 'verify_machine'])->name('verify_machine');
+    Route::post('/restrict_machine', [DashboardController::class, 'restrict_machine'])->name('restrict_machine');
 
 });

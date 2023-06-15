@@ -50,9 +50,16 @@
      <div class="col-12 mt-5">
         <div class="card">
             <div class="card-body">
-                <div class="alert-dismiss">
+                <div class="alert-dismiss" id="alert-success-user">
                     <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                        <strong>Operation Successful!</strong> You should check in on some of those fields below.<a href="#" class="alert-link">z
+                        <strong>Operation Successful!</strong> <span id="alert-success-user-span"> Message <a href="#" onclick="location.reload();" class="alert-link"> Click Here to Reload</a></span>
+                    </div>
+                </div>
+                <div class="alert-dismiss" id="alert-danger-user">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Operation Failed!</strong> <span id="alert-danger-user-span"> Message <a href="#" onclick="location.reload();" class="alert-link"> Click Here to Reload</a></span>
+                    </div>
+                </div>
                 <h4 class="header-title">Users</h4>
                 <div class="data-tables">
                     <table id="dataTable" class="text-center">
@@ -88,13 +95,13 @@
 
                                             <td>
                                                 <ul class="d-flex justify-content-center">
-                                                    <li class="mr-3"><a href="#" onClick="verifyUser({{ $user->id }})" class="text-secondary"><i class="fa fa-check"></i></a></li>
+                                                    <li class="mr-3"><a  onClick="verifyUser('{{ $user->id }}', '{{ $user->name }}', '{{ $user->email }}')" class="text-secondary"><i class="fa fa-check"></i></a></li>
 
                                                 </ul>
                                             </td>
                                             <td>
                                                 <ul class="d-flex justify-content-center">
-                                                    <li class="mr-3"><a onClick="getMachine({{ $user->id }})" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
+                                                    <li class="mr-3"><a onClick="getMachine('{{ $user->id }}', '{{ $user->name }}', '{{ $user->email }}')" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
                                                 </ul>
                                             </td>
                                 </tr>
@@ -113,7 +120,18 @@
     <div class="col-12 mt-5">
         <div class="card">
             <div class="card-body">
-                <h4 class="header-title" id="header-card-machine">Machine Data For User : email123@gmail.com(John Abra)</h4>
+                <input id="userId" type="hidden" value="0"/>;
+                <div class="alert-dismiss" id="alert-success-machine">
+                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                        <strong>Operation Successful!</strong><span id="alert-success-machine-span"> Message <a href="#" onclick="location.reload();" class="alert-link"> Click Here to Reload</a></span>
+                    </div>
+                </div>
+                <div class="alert-dismiss" id="alert-danger-machine">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Operation Failed!</strong> <span id="alert-danger-machine-span"> Message <a href="#" onclick="location.reload();" class="alert-link"> Click Here to Reload</a></span>
+                    </div>
+                </div>
+                <h4 class="header-title" id="header-card-machine">Machine Data For User </h4>
                 <div class="single-table">
                     <div class="table-responsive">
                         <table class="table table-hover progress-table text-center" id="data-table-machine">
@@ -182,13 +200,19 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            $('.alert-dismiss').hide();
+            });
 
-    function getMachine(idU){
+    function getMachine(dataStr){
         //selectedRow = btn.parentElement;
-
+        const myArray = dataStr.split(',');
+        const id = myArray[0];
+        const name = myArray[1];
+        const email = myArray[2];
         //var idU = selectedRow.cells[1].innerHTML;
         // Set inner HTML using jQuery
-        //$('#header-card-machine').html('Machine Data For User : '+selectedRow.cells[3].innerHTML+'('+selectedRow.cells[2].innerHTML+')');
+        $('#header-card-machine').html('Machine Data For User : '+name+'('+email+')');
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -200,7 +224,7 @@
         type: 'POST', // Adjust the request type as needed (GET or POST)
         dataType: 'json',
         data: {
-            id: idU, // Pass the condition value
+            id: id, // Pass the condition value
         },
         success: function(response) {
             // Clear existing table rows
@@ -208,6 +232,8 @@
 
             // Iterate through the response data and populate the table
             $.each(response, function(index, item) {
+                document.getElementById('userId').value = item.userId;
+
              var status,status_bg ='';
                 if(item.active == '1')
                 {
@@ -226,21 +252,38 @@
                             '<td>' + item.hard_disk_serial + '</td>' +
                             '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
                             '<td><ul class="d-flex justify-content-center">' +
-                                '<li class="mr-3"><a href="#" onClick="verifyMachine(this)" class="text-success"><i class="fa fa-check"></i></a></li>' +
-                                            '<li><a href="#" onClick="rejectMachine(this)" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                '<li class="mr-3"><a  onClick="verifyMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                            '<li><a  onClick="restrictMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
                                             '</ul>' +
                                         '</td>' +
                             '</tr>';
                 $('#data-table-machine tbody').append(row);
+
             });
+            $('#alert-success-user-span').html('Fetched Machine Data. Check below table');
+
+            $('#alert-success-user').show();
+                setTimeout(function(){
+                $("#alert-success-user").slideUp(500);
+            }, 4000);
+
         },
         error: function(xhr, status, error) {
             console.log(error); // Handle error gracefully
+            $('#alert-danger-user-span').html('Error in fatching machine Data');
+            $('#alert-danger-user').show();
+                setTimeout(function(){
+                $("#alert-danger-user").slideUp(500);
+            }, 3000);
         }
         });
     }
 
-    function verifyUser(id){
+    function verifyUser(dataStr){
+        const myArray = dataStr.split(',');
+        const id = myArray[0];
+        const name = myArray[1];
+        const email = myArray[2];
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -256,41 +299,186 @@
         },
         success: function(response) {
             ///////
+
+            $('#alert-success-user-span').html(response.message+ ' <a href="#" onclick="location.reload();" class="alert-link"> Click Here to Reload</a>');
+            // Clear existing table rows
+            $('#data-table-machine tbody').empty();
+
+            // Iterate through the response data and populate the table
+            $.each(response.data, function(index, item) {
+             var status,status_bg ='';
+                if(item.active == '1')
+                {
+                    status = 'allowed';
+                    status_bg = 'success';
+                }
+                else
+                {
+                    status = 'restricted';
+                    status_bg = 'danger';
+                }
+                var row = '<tr>' +
+                            '<td>' + index + '</td>' +
+                            '<td>' + item.id + '</td>' +
+                            '<td>' + item.mac_address + '</td>' +
+                            '<td>' + item.hard_disk_serial + '</td>' +
+                            '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
+                            '<td><ul class="d-flex justify-content-center">' +
+                                '<li class="mr-3"><a onClick="verifyMachine(' + item.id + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                            '<li><a onClick="restrictMachine(' + item.id+ ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                            '</ul>' +
+                                        '</td>' +
+                            '</tr>';
+                $('#data-table-machine tbody').append(row);
+
+            });
+
         },
         error: function(xhr, status, error) {
+            if(xhr.status === 400)
+            {
+            $('#alert-danger-user-span').html(response.message);
+            $('#alert-danger-user').show();
+                setTimeout(function(){
+                $("#alert-danger-user").slideUp(500);
+            }, 3000);
+            }
+            else
+            {
+                $('#alert-danger-user-span').html('Some Error occured!');
+                $('#alert-danger-user').show();
+                setTimeout(function(){
+                $("#alert-danger-user").slideUp(500);
+            }, 3000);
+            }
             console.log(error); // Handle error gracefully
         }
         });
-    // selectedRow = btn.parentElement.parentElement;
-    // const data = {
-    // id: selectedRow.cells[0].innerHTML,
-    // col:'verified_by'
-    // };
-
-    // axios.post('/verifyInvoice', data)
-    // .then(response => {
-    //     if(response.data == -1)
-    //     {
-    //         $('#av1').show();
-    //     }
-    //     if(response.data == 0)
-    //     {
-    //         $('#av').show();
-    //         document.body.scrollTop = 0; // For Safari
-    //         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-    //     }
-    //     if(response.data == 1)
-    //     {
-    //         window.location.reload();
-    //     }
-    // })
-    // .catch (response => {
-    //     // List errors on response...
-    // });
 }
-        // $('select').on('change', function() {
-        // alert( this.value );
-        // });
+
+
+function verifyMachine(id){
+    var idU = document.getElementById('userId').value;
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+        url: '{{ route('admin.verify_machine') }}', // Replace with your Laravel route URL
+        type: 'POST', // Adjust the request type as needed (GET or POST)
+        dataType: 'json',
+        data: {
+            id: id,
+            idU: idU, // Pass the condition value
+        },
+        success: function(response) {
+            ///////
+
+            $('#alert-success-user-span').html(response.message);
+            // Clear existing table rows
+            $('#data-table-machine tbody').empty();
+
+            // Iterate through the response data and populate the table
+            $.each(response.data, function(index, item) {
+            var status,status_bg ='';
+                if(item.active == '1')
+                {
+                    status = 'allowed';
+                    status_bg = 'success';
+                }
+                else
+                {
+                    status = 'restricted';
+                    status_bg = 'danger';
+                }
+                var row = '<tr>' +
+                            '<td>' + index + '</td>' +
+                            '<td>' + item.id + '</td>' +
+                            '<td>' + item.mac_address + '</td>' +
+                            '<td>' + item.hard_disk_serial + '</td>' +
+                            '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
+                            '<td><ul class="d-flex justify-content-center">' +
+                                '<li class="mr-3"><a  onClick="verifyMachine(' + item.id + ',' + item.user_id + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                            '<li><a |onClick="restrictMachine(' + item.id + ',' + item.user_id + ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                            '</ul>' +
+                                        '</td>' +
+                            '</tr>';
+                $('#data-table-machine tbody').append(row);
+
+            });
+
+        },
+        error: function(xhr, status, error) {
+            if(xhr.status === 400)
+            {
+            $('#alert-danger-machine-span').html(response.message);
+            $('#alert-danger-machine').show();
+                setTimeout(function(){
+                $("#alert-danger-user").slideUp(500);
+            }, 3000);
+            }
+            else
+            {
+                $('#alert-danger-machine-span').html('Some Error occured!');
+                $('#alert-danger-machine').show();
+                setTimeout(function(){
+                $("#alert-danger-machine").slideUp(500);
+            }, 3000);
+            }
+            console.log(error); // Handle error gracefully
+        }
+        });
+}
+
+function restrictMachine(id){
+    var idU = document.getElementById('userId').value;
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+        url: '{{ route('admin.restrict_machine') }}', // Replace with your Laravel route URL
+        type: 'POST', // Adjust the request type as needed (GET or POST)
+        dataType: 'json',
+        data: {
+            id: id,
+            idU: idU,  // Pass the condition value
+        },
+        success: function(response) {
+            ///////
+
+            $('#alert-success-user-span').html(response.message);
+
+
+        },
+        error: function(xhr, status, error) {
+            if(xhr.status === 400)
+            {
+            $('#alert-danger-machine-span').html(response.message);
+            $('#alert-danger-machine').show();
+                setTimeout(function(){
+                $("#alert-danger-user").slideUp(500);
+            }, 3000);
+            }
+            else
+            {
+                $('#alert-danger-machine-span').html('Some Error occured!');
+                $('#alert-danger-machine').show();
+                setTimeout(function(){
+                $("#alert-danger-machine").slideUp(500);
+            }, 3000);
+            }
+            console.log(error); // Handle error gracefully
+        }
+        });
+}
+
+
     </script>
 
 @endpush
