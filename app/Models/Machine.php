@@ -15,5 +15,6 @@ class Machine extends Model
         'hard_disk_serial',
         'active',
     ];
+
     public $timestamps = false;
 }

@@ -15,10 +15,11 @@
                     <div class="row">
                         <div class="col-md-6 mt-5 mb-3">
                             <div class="card">
+
                                 <div class="seo-fact sbg1">
                                     <div class="p-4 d-flex justify-content-between align-items-center">
                                         <div class="seofct-icon"><i class="ti-user"></i> Number of Users</div>
-                                        <h2>2,315</h2>
+                                        <h2>{{ $countUsers }}</h2>
                                     </div>
                                     <canvas id="seolinechart1" height="50"></canvas>
                                 </div>
@@ -29,7 +30,7 @@
                                 <div class="seo-fact sbg2">
                                     <div class="p-4 d-flex justify-content-between align-items-center">
                                         <div class="seofct-icon"><i class="ti-share"></i> Number of Machines</div>
-                                        <h2>3,984</h2>
+                                        <h2>{{ $countMachines }}</h2>
                                     </div>
                                     <canvas id="seolinechart2" height="50"></canvas>
                                 </div>
@@ -49,11 +50,15 @@
      <div class="col-12 mt-5">
         <div class="card">
             <div class="card-body">
+                <div class="alert-dismiss">
+                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                        <strong>Operation Successful!</strong> You should check in on some of those fields below.<a href="#" class="alert-link">z
                 <h4 class="header-title">Users</h4>
                 <div class="data-tables">
                     <table id="dataTable" class="text-center">
                         <thead class="bg-light text-capitalize">
                             <tr>
+                                <th>Sr</th>
                                 <th>Id </th>
                                 <th>Name</th>
                                 <th>Email</th>
@@ -66,237 +71,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Accountant</td>
-                                <td>Tokyo@gmail.com</td>
-                                <td>2008/11/28</td>
-                                <td>3</td>
-                                <td>2</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
+                            @foreach($allUsers as $user)
+                                <tr>
+                                    @php
+                                         $verificationStatus = $user->email_verified_at ? 'Verified' : 'Pending';
+                                         $verificationStatus_bg = $user->email_verified_at ? 'primary' : 'warning';
+                                    @endphp
+                                            <td>{{ $loop->iteration}}</td>
+                                            <td>{{ $user->id}}</td>
+                                            <td>{{ $user->name}}</td>
+                                            <td>{{ $user->email}}</td>
+                                            <td>{{ $user->created_at}}</td>
+                                            <td>{{ $user->machines_count }}</td>
+                                            <td>{{ $user->machines()->where('active', 1)->count() }}</td>
+                                            <td><span class="status-p bg-{{ $verificationStatus_bg }}">{{ $verificationStatus }}</span></td>
 
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
+                                            <td>
+                                                <ul class="d-flex justify-content-center">
+                                                    <li class="mr-3"><a href="#" onClick="verifyUser({{ $user->id }})" class="text-secondary"><i class="fa fa-check"></i></a></li>
 
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Chief Executive Officer (CEO)</td>
-                                <td>London@gmail.com</td>
-                                <td>2009/10/09</td>
-                                <td>4</td>
-                                <td>1</td>
-                                <td><span class="status-p bg-primary">verified</span></td>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <ul class="d-flex justify-content-center">
+                                                    <li class="mr-3"><a onClick="getMachine({{ $user->id }})" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
+                                                </ul>
+                                            </td>
+                                </tr>
 
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
+                            @endforeach
 
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Junior Technical Author</td>
-                                <td>SanFrancisco@gmail.com</td>
-                                <td>2009/01/12</td>
-                                <td>6</td>
-                                <td>6</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Bradley Greer</td>
-                                <td>Software Engineer</td>
-                                <td>London</td>
-                                <td>41</td>
-                                <td>2012/10/13</td>
-                                <td>$132,000</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Brenden Wagner</td>
-                                <td>Software Engineer</td>
-                                <td>San Francisco</td>
-                                <td>28</td>
-                                <td>2011/06/07</td>
-                                <td>$206,850</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Caesar Vance</td>
-                                <td>Pre-Sales Support</td>
-                                <td>New York</td>
-                                <td>29</td>
-                                <td>2011/12/12</td>
-                                <td>$106,450</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Bruno Nash</td>
-                                <td>Software Engineer</td>
-                                <td>Edinburgh</td>
-                                <td>21</td>
-                                <td>2012/03/29</td>
-                                <td>$433,060</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Bradley Greer</td>
-                                <td>Software Engineer</td>
-                                <td>London</td>
-                                <td>41</td>
-                                <td>2012/10/13</td>
-                                <td>$132,000</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Brenden Wagner</td>
-                                <td>Software Engineer</td>
-                                <td>San Francisco</td>
-                                <td>28</td>
-                                <td>2011/06/07</td>
-                                <td>$206,850</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Caesar Vance</td>
-                                <td>Pre-Sales Support</td>
-                                <td>New York</td>
-                                <td>29</td>
-                                <td>2011/12/12</td>
-                                <td>$106,450</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Bruno Nash</td>
-                                <td>Software Engineer</td>
-                                <td>Edinburgh</td>
-                                <td>21</td>
-                                <td>2012/03/29</td>
-                                <td>$433,060</td>
-                                <td><span class="status-p bg-warning">panding</span></td>
-
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-secondary"><i class="fa fa-check"></i></a></li>
-
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="d-flex justify-content-center">
-                                        <li class="mr-3"><a href="#" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
-                                    </ul>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -309,12 +113,13 @@
     <div class="col-12 mt-5">
         <div class="card">
             <div class="card-body">
-                <h4 class="header-title">Machine Data For User : email123@gmail.com(John Abra)</h4>
+                <h4 class="header-title" id="header-card-machine">Machine Data For User : email123@gmail.com(John Abra)</h4>
                 <div class="single-table">
                     <div class="table-responsive">
-                        <table class="table table-hover progress-table text-center">
+                        <table class="table table-hover progress-table text-center" id="data-table-machine">
                             <thead class="text-uppercase">
                                 <tr>
+                                    <th scope="col">Sr</th>
                                     <th scope="col">ID</th>
                                     <th scope="col">MAC Adress</th>
                                     <th scope="col">Hard disk Serail</th>
@@ -323,7 +128,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                {{-- <tr>
                                     <th scope="row">1</th>
                                     <td>28:3a:4d:5b:9a:7fA</td>
                                     <td>slkdfjdlk/td>
@@ -339,7 +144,7 @@
                                     <th scope="row">2</th>
                                     <td>28:3a:4d:5b:9a:7fA</td>
                                     <td>skdlafjklds</td>
-                                    <td><span class="status-p bg-success">allowed</span></td>
+                                    <td><span class="status-p bg-success"></span></td>
                                     <td>
                                         <ul class="d-flex justify-content-center">
                                             <li class="mr-3"><a href="#" class="text-success"><i class="fa fa-check"></i></a></li>
@@ -359,7 +164,7 @@
                                         <li><a href="#" class="text-danger"><i class="fa fa-undo"></i></a></li>
                                         </ul>
                                     </td>
-                                </tr>
+                                </tr> --}}
                             </tbody>
                         </table>
                     </div>
@@ -374,9 +179,115 @@
 @endsection
 @push('js')
     {{-- @include('admin.components.datatableScript') --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
 
+    function getMachine(idU){
+        //selectedRow = btn.parentElement;
+
+        //var idU = selectedRow.cells[1].innerHTML;
+        // Set inner HTML using jQuery
+        //$('#header-card-machine').html('Machine Data For User : '+selectedRow.cells[3].innerHTML+'('+selectedRow.cells[2].innerHTML+')');
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+        url: '{{ route('admin.get_machine_data') }}', // Replace with your Laravel route URL
+        type: 'POST', // Adjust the request type as needed (GET or POST)
+        dataType: 'json',
+        data: {
+            id: idU, // Pass the condition value
+        },
+        success: function(response) {
+            // Clear existing table rows
+            $('#data-table-machine tbody').empty();
+
+            // Iterate through the response data and populate the table
+            $.each(response, function(index, item) {
+             var status,status_bg ='';
+                if(item.active == '1')
+                {
+                    status = 'allowed';
+                    status_bg = 'success';
+                }
+                else
+                {
+                    status = 'restricted';
+                    status_bg = 'danger';
+                }
+                var row = '<tr>' +
+                            '<td>' + index + '</td>' +
+                            '<td>' + item.id + '</td>' +
+                            '<td>' + item.mac_address + '</td>' +
+                            '<td>' + item.hard_disk_serial + '</td>' +
+                            '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
+                            '<td><ul class="d-flex justify-content-center">' +
+                                '<li class="mr-3"><a href="#" onClick="verifyMachine(this)" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                            '<li><a href="#" onClick="rejectMachine(this)" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                            '</ul>' +
+                                        '</td>' +
+                            '</tr>';
+                $('#data-table-machine tbody').append(row);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.log(error); // Handle error gracefully
+        }
+        });
+    }
+
+    function verifyUser(id){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+        url: '{{ route('admin.verify_user') }}', // Replace with your Laravel route URL
+        type: 'POST', // Adjust the request type as needed (GET or POST)
+        dataType: 'json',
+        data: {
+            id: id, // Pass the condition value
+        },
+        success: function(response) {
+            ///////
+        },
+        error: function(xhr, status, error) {
+            console.log(error); // Handle error gracefully
+        }
+        });
+    // selectedRow = btn.parentElement.parentElement;
+    // const data = {
+    // id: selectedRow.cells[0].innerHTML,
+    // col:'verified_by'
+    // };
+
+    // axios.post('/verifyInvoice', data)
+    // .then(response => {
+    //     if(response.data == -1)
+    //     {
+    //         $('#av1').show();
+    //     }
+    //     if(response.data == 0)
+    //     {
+    //         $('#av').show();
+    //         document.body.scrollTop = 0; // For Safari
+    //         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    //     }
+    //     if(response.data == 1)
+    //     {
+    //         window.location.reload();
+    //     }
+    // })
+    // .catch (response => {
+    //     // List errors on response...
+    // });
+}
         // $('select').on('change', function() {
         // alert( this.value );
         // });
