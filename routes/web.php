@@ -13,10 +13,7 @@ use App\Http\Controllers\DashboardController;
 |
 */
 
-// Route::get('/dashboard', function () {
-//     // return view('welcome');
-//     return;
-// });
+Route::get('/', [DashboardController::class, 'login'])->name('login');
 
 Route::as('admin.')->prefix('admin')->group(function () {
 
@@ -26,5 +23,6 @@ Route::as('admin.')->prefix('admin')->group(function () {
     Route::post('/verify_user', [DashboardController::class, 'verify_user'])->name('verify_user');
     Route::post('/verify_machine', [DashboardController::class, 'verify_machine'])->name('verify_machine');
     Route::post('/restrict_machine', [DashboardController::class, 'restrict_machine'])->name('restrict_machine');
-
+   
 });
+

@@ -69,7 +69,7 @@
                                 <th>Id </th>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Registeration Date</th>
+                                <th>Registration Date</th>
                                 <th>No of Machines</th>
                                 <th>Verified Machines</th>
                                 <th>Status</th>
@@ -101,7 +101,7 @@
                                             </td>
                                             <td>
                                                 <ul class="d-flex justify-content-center">
-                                                    <li class="mr-3"><a onClick="getMachine('{{ $user->id }}', '{{ $user->name }}', '{{ $user->email }}')" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
+                                                    <li class="mr-3"><a onClick="getMachine('{{ $user->id }}','{{ $user->name }}','{{ $user->email }}')" class="text-primary">Click Here to Fetch User's Machines <i class="fa fa-download"></i></a></li>
                                                 </ul>
                                             </td>
                                 </tr>
@@ -204,14 +204,8 @@
             $('.alert-dismiss').hide();
             });
 
-    function getMachine(dataStr){
-        //selectedRow = btn.parentElement;
-        const myArray = dataStr.split(',');
-        const id = myArray[0];
-        const name = myArray[1];
-        const email = myArray[2];
-        //var idU = selectedRow.cells[1].innerHTML;
-        // Set inner HTML using jQuery
+    function getMachine(id, name, email){
+        
         $('#header-card-machine').html('Machine Data For User : '+name+'('+email+')');
         $.ajaxSetup({
             headers: {
@@ -270,7 +264,7 @@
         },
         error: function(xhr, status, error) {
             console.log(error); // Handle error gracefully
-            $('#alert-danger-user-span').html('Error in fatching machine Data');
+            $('#alert-danger-user-span').html('Error in fetching machine Data');
             $('#alert-danger-user').show();
                 setTimeout(function(){
                 $("#alert-danger-user").slideUp(500);
@@ -279,11 +273,8 @@
         });
     }
 
-    function verifyUser(dataStr){
-        const myArray = dataStr.split(',');
-        const id = myArray[0];
-        const name = myArray[1];
-        const email = myArray[2];
+    function verifyUser(id, name, email){
+        
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -324,8 +315,8 @@
                             '<td>' + item.hard_disk_serial + '</td>' +
                             '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
                             '<td><ul class="d-flex justify-content-center">' +
-                                '<li class="mr-3"><a onClick="verifyMachine(' + item.id + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
-                                            '<li><a onClick="restrictMachine(' + item.id+ ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                '<li class="mr-3"><a onClick="verifyMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                            '<li><a onClick="restrictMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
                                             '</ul>' +
                                         '</td>' +
                             '</tr>';
@@ -357,9 +348,8 @@
 }
 
 
-function verifyMachine(id){
-    var idU = document.getElementById('userId').value;
-
+function verifyMachine(id,idU){
+       
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -376,13 +366,13 @@ function verifyMachine(id){
         },
         success: function(response) {
             ///////
-
-            $('#alert-success-user-span').html(response.message);
+            
+            $('#alert-success-machine-span').html('Machine is Verified Now!');
             // Clear existing table rows
             $('#data-table-machine tbody').empty();
 
             // Iterate through the response data and populate the table
-            $.each(response.data, function(index, item) {
+            $.each(response, function(index, item) {
             var status,status_bg ='';
                 if(item.active == '1')
                 {
@@ -401,40 +391,43 @@ function verifyMachine(id){
                             '<td>' + item.hard_disk_serial + '</td>' +
                             '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
                             '<td><ul class="d-flex justify-content-center">' +
-                                '<li class="mr-3"><a  onClick="verifyMachine(' + item.id + ',' + item.user_id + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
-                                            '<li><a |onClick="restrictMachine(' + item.id + ',' + item.user_id + ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                '<li class="mr-3"><a  onClick="verifyMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                            '<li><a onClick="restrictMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
                                             '</ul>' +
                                         '</td>' +
                             '</tr>';
                 $('#data-table-machine tbody').append(row);
+                $('#alert-success-machine').show();
+                setTimeout(function(){
+                $("#alert-success-machine").slideUp(500);
+             }, 3000);
 
             });
 
         },
         error: function(xhr, status, error) {
-            if(xhr.status === 400)
-            {
-            $('#alert-danger-machine-span').html(response.message);
-            $('#alert-danger-machine').show();
-                setTimeout(function(){
-                $("#alert-danger-user").slideUp(500);
-            }, 3000);
-            }
-            else
-            {
+            // if(xhr.status === 400)
+            // {
+            // $('#alert-danger-machine-span').html(response.message);
+            // $('#alert-danger-machine').show();
+            //     setTimeout(function(){
+            //     $("#alert-danger-user").slideUp(500);
+            // }, 3000);
+            // }
+            // else
+            // {
                 $('#alert-danger-machine-span').html('Some Error occured!');
                 $('#alert-danger-machine').show();
                 setTimeout(function(){
                 $("#alert-danger-machine").slideUp(500);
-            }, 3000);
-            }
+             }, 3000);
+            // }
             console.log(error); // Handle error gracefully
         }
         });
 }
 
-function restrictMachine(id){
-    var idU = document.getElementById('userId').value;
+function restrictMachine(id,idU){
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -452,27 +445,61 @@ function restrictMachine(id){
         success: function(response) {
             ///////
 
-            $('#alert-success-user-span').html(response.message);
+            $('#alert-success-machine-span').html('Machine is Restricted Now!');
+                // Clear existing table rows
+                $('#data-table-machine tbody').empty();
 
+                // Iterate through the response data and populate the table
+                $.each(response, function(index, item) {
+                var status,status_bg ='';
+                    if(item.active == '1')
+                    {
+                        status = 'allowed';
+                        status_bg = 'success';
+                    }
+                    else
+                    {
+                        status = 'restricted';
+                        status_bg = 'danger';
+                    }
+                    var row = '<tr>' +
+                                '<td>' + index + '</td>' +
+                                '<td>' + item.id + '</td>' +
+                                '<td>' + item.mac_address + '</td>' +
+                                '<td>' + item.hard_disk_serial + '</td>' +
+                                '<td><span class="status-p bg-'+status_bg+'">'+status+'</span></td>' +
+                                '<td><ul class="d-flex justify-content-center">' +
+                                    '<li class="mr-3"><a  onClick="verifyMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-success"><i class="fa fa-check"></i></a></li>' +
+                                                '<li><a onClick="restrictMachine(' + item.id.toString()  + ',' + item.user_id.toString()  + ')" class="text-danger"><i class="fa fa-undo"></i></a></li>' +
+                                                '</ul>' +
+                                            '</td>' +
+                                '</tr>';
+                    $('#data-table-machine tbody').append(row);
+
+                });
+                $('#alert-success-machine').show();
+                setTimeout(function(){
+                $("#alert-success-machine").slideUp(500);
+                }, 3000);
 
         },
         error: function(xhr, status, error) {
-            if(xhr.status === 400)
-            {
-            $('#alert-danger-machine-span').html(response.message);
-            $('#alert-danger-machine').show();
-                setTimeout(function(){
-                $("#alert-danger-user").slideUp(500);
-            }, 3000);
-            }
-            else
-            {
+            // if(xhr.status === 400)
+            // {
+            // $('#alert-danger-machine-span').html(response.message);
+            // $('#alert-danger-machine').show();
+            //     setTimeout(function(){
+            //     $("#alert-danger-user").slideUp(500);
+            // }, 3000);
+            // }
+            // else
+            // {
                 $('#alert-danger-machine-span').html('Some Error occured!');
                 $('#alert-danger-machine').show();
                 setTimeout(function(){
                 $("#alert-danger-machine").slideUp(500);
             }, 3000);
-            }
+            //}
             console.log(error); // Handle error gracefully
         }
         });

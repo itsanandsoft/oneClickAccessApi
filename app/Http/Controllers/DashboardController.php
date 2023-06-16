@@ -62,7 +62,7 @@ class DashboardController extends Controller
         $machine->save();
         $data = Machine::where('user_id', $idU)->get(); // Replace 'some_column' with your actual column name
 
-        return response()->json(['message' => 'Machine is Verified Now' , 'data' => $data], 200);
+        return response()->json($data);
 
     }
     public function restrict_machine(Request $request)
@@ -73,8 +73,13 @@ class DashboardController extends Controller
         $machine->active = '0';
         $machine->save();
         $data = Machine::where('user_id', $idU)->get(); // Replace 'some_column' with your actual column name
-          return response()->json(['message' => 'Machine is Restricted Now' , 'data' => $data], 200);
+          return response()->json($data);
+    }
 
+    public function login()
+    {
+        
+        return view('admin.login',get_defined_vars());
     }
 
 
