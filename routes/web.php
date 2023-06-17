@@ -23,7 +23,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 // })->middleware(['auth'])->name('dashboard');
 
 
-Route::get('/', [AuthenticatedSessionController::class, 'create']);
+Route::get('/', [DashboardController::class, 'home'])->middleware(['auth']);
 
 Route::as('admin.')->prefix('admin')->middleware(['auth'])->group(function () {
 
