@@ -13,7 +13,7 @@
                 <!-- seo fact area start -->
                 <div class="col-lg-8">
                     <div class="row">
-                        <div class="col-md-6 mt-5 mb-3">
+                        <div class="col-md-6 mt-5">
                             <div class="card">
 
                                 <div class="seo-fact sbg1">
@@ -47,7 +47,7 @@
     <!-- main content area end -->
 
      <!-- data table start -->
-     <div class="col-12 mt-5">
+     <div class="col-12 mt-1">
         <div class="card">
             <div class="card-body">
                 <div class="alert-dismiss" id="alert-success-user">
@@ -120,7 +120,6 @@
     <div class="col-12 mt-5">
         <div class="card">
             <div class="card-body">
-                <input id="userId" type="hidden" value="0"/>;
                 <div class="alert-dismiss" id="alert-success-machine">
                     <div class="alert alert-primary alert-dismissible fade show" role="alert">
                         <strong>Operation Successful!</strong><span id="alert-success-machine-span"> Message <a href="#" onclick="location.reload();" class="alert-link"> Click Here to Reload</a></span>
@@ -205,7 +204,7 @@
             });
 
     function getMachine(id, name, email){
-        
+
         $('#header-card-machine').html('Machine Data For User : '+name+'('+email+')');
         $.ajaxSetup({
             headers: {
@@ -226,7 +225,7 @@
 
             // Iterate through the response data and populate the table
             $.each(response, function(index, item) {
-                document.getElementById('userId').value = item.userId;
+
 
              var status,status_bg ='';
                 if(item.active == '1')
@@ -274,7 +273,7 @@
     }
 
     function verifyUser(id, name, email){
-        
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -328,7 +327,7 @@
         error: function(xhr, status, error) {
             if(xhr.status === 400)
             {
-            $('#alert-danger-user-span').html(response.message);
+            $('#alert-danger-user-span').html(xhr.responseJSON.message);
             $('#alert-danger-user').show();
                 setTimeout(function(){
                 $("#alert-danger-user").slideUp(500);
@@ -349,7 +348,7 @@
 
 
 function verifyMachine(id,idU){
-       
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -366,7 +365,7 @@ function verifyMachine(id,idU){
         },
         success: function(response) {
             ///////
-            
+
             $('#alert-success-machine-span').html('Machine is Verified Now!');
             // Clear existing table rows
             $('#data-table-machine tbody').empty();

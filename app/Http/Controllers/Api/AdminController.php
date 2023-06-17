@@ -36,7 +36,7 @@ class AdminController extends Controller
                     else{
                         $this->json->setCode(400);
                         $response = array(
-                            'message' => __("Login Faild. User not an admin")
+                            'message' => __("Login Failed. User not an admin")
                         );
                     }
                 }

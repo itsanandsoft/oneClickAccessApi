@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,9 +14,18 @@ use App\Http\Controllers\DashboardController;
 |
 */
 
-Route::get('/', [DashboardController::class, 'login'])->name('login');
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::as('admin.')->prefix('admin')->group(function () {
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth'])->name('dashboard');
+
+
+Route::get('/', [AuthenticatedSessionController::class, 'create']);
+
+Route::as('admin.')->prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::get('/home', [DashboardController::class, 'home'])->name('home');
     Route::get('/import', [DashboardController::class, 'import'])->name('import');
@@ -23,6 +33,8 @@ Route::as('admin.')->prefix('admin')->group(function () {
     Route::post('/verify_user', [DashboardController::class, 'verify_user'])->name('verify_user');
     Route::post('/verify_machine', [DashboardController::class, 'verify_machine'])->name('verify_machine');
     Route::post('/restrict_machine', [DashboardController::class, 'restrict_machine'])->name('restrict_machine');
-   
+
 });
 
+
+require __DIR__.'/auth.php';
