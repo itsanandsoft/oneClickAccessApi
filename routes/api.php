@@ -27,6 +27,6 @@ Route::group(['middleware' => 'auth:sanctum','prefix'=>'admin'], function () {
     Route::get('get-all-files',[AdminController::class,'getUserFiles']);
     Route::post('upload-file',[AdminController::class,'uploadFile']);
 });
-Route::group(['middleware' => 'auth:sanctum','prefix'=>'user'], function () {
-    Route::get('get-all-machines',[UserController::class,'getAllMachines']);
+Route::group(['prefix'=>'user'], function () {
+    Route::post('get-all-machines',[UserController::class,'getAllMachines']);
 });

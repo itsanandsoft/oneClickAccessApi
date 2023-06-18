@@ -318,27 +318,175 @@ class UserController extends Controller
 
         return $user;
     }
-    public function getAllMachines(Request $request){
+    // public function getAllMachines(Request $request){
+    //         $machines = Machine::all();
+    //         if (!$machines->isEmpty()) {
+    //             $this->json->setCode(200);
+    //             $this->json->sendResponse(array(
+    //                 'machines' => $machines,
+    //             ));
+    //         }
+    //         else{
+    //             $this->json->setCode(404);
+    //             $this->json->sendResponse(array(
+    //                 'body' => 'not found',
+    //             ));
+    //         }
+    //     // $user = Auth::user();
+    //     // if(empty($user[0])){
+    //     //     if(!empty($user->machines)){
+    //     //         $machines = $user->machines;
+    //     //         $this->json->setCode(200);
+    //     //         $this->json->sendResponse(array(
+    //     //             'machines' => $machines,
+    //     //         ));
+    //     //     }
+    //     //     else{
+    //     //         $this->json->setCode(404);
+    //     //         $this->json->sendResponse(array(
+    //     //             'body' => 'not found',
+    //     //         ));
+    //     //     }
+    //     // }
+    //     // $this->json->setCode(404);
+    //     // $this->json->sendResponse(array(
+    //     //     'body' => 'not found',
+    //     // ));
+    // }
+    public function getAllMachines(Request $request)
+        {
+            // $data = $request->all();
 
-        $user = Auth::user();
-        if(empty($user[0])){
-            if(!empty($user->machines)){
-                $machines = $user->machines;
+            // $machine = Machine::where('mac_address',$data['mac_address'])
+            // ->where('hard_disk_serial',$data['hard_disk_serial'])
+            // ->first();
+            // if(!empty($machine)){
+            //     $response = array(
+            //         'message' => "Validation failed.",
+            //         'errors' => [
+            //             'mac_address' => [
+            //                 "Mac Address already assigned."
+            //             ]
+            //         ],
+            //     );
+            //     $this->json->setCode(400);
+            //     $this->json->sendResponse($response);
+            //     return;
+            // }
+
+            // $user = User::create([
+            //     'name' => '',
+            //     'email' => $data['email'],
+            //     'password' => Hash::make($data['password']),
+            //     'is_admin' => 0,
+            // ]);
+            // $machine = Machine::create([
+            //     'user_id' => $user->id,
+            //     'mac_address' => $data['mac_address'],
+            //     'hard_disk_serial' => $data['hard_disk_serial'],
+            //     'machine' => isset($data['user_agent'])?$data['user_agent']:'windows',
+            // ]);
+
+            // return $user;
+            try{
+                $this->verifyRequiredParams(array('email','user_id','mac_address','hard_disk_serial'), $request);
+
+                $user = User::where('email',$request->email)
+                ->where('is_admin','<>','1')
+                ->first();
+
+                if(!empty($user)){
+                        if($user->hasVerifiedEmail()){
+                            if(!empty($user->machines)){
+                                $machine = $user->machines
+                                ->where('mac_address',$request->mac_address)
+                                ->where('hard_disk_serial',$request->hard_disk_serial)
+                                ->first();
+                                if(!empty($machine)){
+                                    if($machine->active == '0'){
+                                        $response = array(
+                                            'message' => "Machine not active",
+                                            'id' => '',
+                                            'email' => '',
+                                            'user' => $user->toArray(),
+                                            'verified' => '',
+                                            'token' => '',
+                                            'machineVerified' => '0',
+                                        );
+
+                                    }
+                                    else{
+                                        $response = array(
+                                            'message' => "OK",
+                                            'id' => $user->id,
+                                            'email' => $user->email,
+                                            'user' => $user->toArray(),
+                                            'verified' => $user->hasVerifiedEmail(),
+                                            'token' => $user->createToken('user_token')->plainTextToken,
+                                            'machineVerified' => '1',
+                                        );
+
+                                    }
+                                }
+                                else{
+                                    $response = array(
+                                        'message' => " Machine not found",
+                                        'id' => '',
+                                        'email' => '',
+                                        'user' => '',
+                                        'verified' => '',
+                                        'token' => '',
+                                        'machineVerified' => '0',
+                                    );
+
+                                }
+                            }
+                            else{
+                                $response = array(
+                                    'message' => __("No machine registered"),
+                                    'id' => '',
+                                        'email' => '',
+                                        'user' => '',
+                                        'verified' => '',
+                                    'token' => '',
+                                    'machineVerified' => '0',
+                                );
+
+                            }
+                        }
+                        else{
+                            $response = array(
+                                'message' => __("Account not approved"),
+                                'id' => '',
+                                'email' => '',
+                                'user' => '',
+                                'verified' => '',
+                                'token' => '',
+                                'machineVerified' => '0',
+                            );
+
+                        }
+
+                }
+                else{
+                    $response = array(
+                        'message' => __("User not found"),
+                        'user' => '',
+                        'id' => '',
+                                'email' => '',
+                        'verified' => '',
+                        'token' => '',
+                        'machineVerified' => '0',
+                    );
+
+                }
                 $this->json->setCode(200);
-                $this->json->sendResponse(array(
-                    'machines' => $machines,
-                ));
+                $this->json->sendResponse($response);
+
+
+            } catch (Exception $ex) {
+                $this->sendException($ex);
             }
-            else{
-                $this->json->setCode(404);
-                $this->json->sendResponse(array(
-                    'body' => 'not found',
-                ));
-            }
+
         }
-        $this->json->setCode(404);
-        $this->json->sendResponse(array(
-            'body' => 'not found',
-        ));
-    }
 }
