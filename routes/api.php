@@ -29,4 +29,5 @@ Route::group(['middleware' => 'auth:sanctum','prefix'=>'admin'], function () {
 });
 Route::group(['prefix'=>'user'], function () {
     Route::post('get-all-machines',[UserController::class,'getAllMachines']);
+    Route::post('get-data-agianst-user',[UserController::class,'getDataAgainstUser']);
 });

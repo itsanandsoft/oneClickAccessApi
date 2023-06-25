@@ -33,6 +33,9 @@ Route::as('admin.')->prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/verify_user', [DashboardController::class, 'verify_user'])->name('verify_user');
     Route::post('/verify_machine', [DashboardController::class, 'verify_machine'])->name('verify_machine');
     Route::post('/restrict_machine', [DashboardController::class, 'restrict_machine'])->name('restrict_machine');
+    Route::post('/uploadJSONOfUser', [DashboardController::class, 'uploadJSONOfUser'])->name('uploadJSONOfUser');
+    Route::post('/fetchJSONUserData', [DashboardController::class, 'fetchJSONUserData'])->name('fetchJSONUserData');
+    Route::post('/testingPost', [DashboardController::class, 'testingPost'])->name('testingPost');
 
 });
 

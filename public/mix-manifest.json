@@ -1,4 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css"
+    "/css/app.css": "/css/app.css",
+    "/css/fancytree/ui.fancytree.css": "/css/fancytree/ui.fancytree.css",
+    "/js/fancytree/jquery.fancytree-all.min.js": "/js/fancytree/jquery.fancytree-all.min.js"
 }

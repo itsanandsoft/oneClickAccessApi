@@ -15,3 +15,7 @@ mix.js('resources/js/app.js', 'public/js').postCss('resources/css/app.css', 'pub
     require('tailwindcss'),
     require('autoprefixer'),
 ]);
+
+mix.copy('node_modules/jquery.fancytree/dist/skin-lion/ui.fancytree.css', 'public/css/fancytree/');
+mix.copy('node_modules/jquery.fancytree/dist/jquery.fancytree-all.min.js', 'public/js/fancytree/');
+

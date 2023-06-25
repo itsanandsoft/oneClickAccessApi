@@ -23,6 +23,11 @@ class DashboardController extends Controller
 
     public function import()
     {
+        $allUsers = User::withCount('machines')->where('is_admin', '!=', 1)->get();
+        $allMachines = Machine::where('active', 1)->count();
+
+        $countMachines = Machine::count();
+        $countUsers = User::count();
         //$cardDetails = AccountDetail::where('user_id',Auth::user()->id)->get();
         return view('admin.import',get_defined_vars());
     }
@@ -78,10 +83,53 @@ class DashboardController extends Controller
 
     public function login()
     {
-        
+
         return view('admin.login',get_defined_vars());
     }
 
+
+
+    public function uploadJSONOfUser(Request $request)
+    {
+        $idU = $request->input('id');
+        $dataStringifyJSON = $request->input('dataStringifyJSON');
+        //dd($dataStringifyJSON);
+        $user = User::find($idU);
+        if (is_null($user->json_data_for_user)) {
+             // Set the email_verified_at column to the current date and time
+            $user->json_data_for_user = $dataStringifyJSON;
+            $user->save();
+            // Return a response with a status of 200
+            return response()->json(['message' => 'Data Uploaded Successfully!'], 200);
+        }
+        else
+        {
+            $user->json_data_for_user = $dataStringifyJSON;
+            $user->save();
+            return response()->json(['message' => 'Data Uploaded and Replaced Successfully!'], 200);
+        }
+
+    }
+    public function testingPost(Request $request)
+    {
+        $dataStringifyJSON = $request->input('dataStringifyJSON');
+
+            return response()->json(['message' => $dataStringifyJSON], 200);
+
+    }
+    public function fetchJSONUserData(Request $request)
+    {
+        $idU = $request->input('id');
+        $user = User::find($idU);
+        if (!is_null($user->json_data_for_user)) {
+            return response()->json(['message' => 'Fetched Successfully!', 'data' => json_encode($user->json_data_for_user)], 200);
+        }
+        else
+        {
+            return response()->json(['message' => 'No Data Found', 'data' => json_encode("No data Found")], 200);
+        }
+
+    }
 
 
 }

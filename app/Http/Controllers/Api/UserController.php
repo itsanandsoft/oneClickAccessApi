@@ -489,4 +489,45 @@ class UserController extends Controller
             }
 
         }
+
+        public function getDataAgainstUser(Request $request)
+        {
+
+            try{
+                $this->verifyRequiredParams(array('email'), $request);
+
+                $user = User::where('email',$request->email)
+                ->where('is_admin','<>','1')
+                ->first();
+
+                if(!empty($user)){
+                            if(!empty($user->json_data_for_user)){
+                                        $response = array(
+                                            'message' => "Data Found",
+                                            'data' => json_encode($user->json_data_for_user),
+                                        );
+                            }
+                            else{
+                                $response = array(
+                                    'message' => __("No Data Found"),
+                                    'data' => '',
+                                );
+                            }
+                }
+                else{
+                    $response = array(
+                        'message' => __("User not found"),
+                        'data' => '',
+                    );
+
+                }
+                $this->json->setCode(200);
+                $this->json->sendResponse($response);
+
+
+            } catch (Exception $ex) {
+                $this->sendException($ex);
+            }
+
+        }
 }
